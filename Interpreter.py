@@ -1,18 +1,55 @@
+# imports
+import operator
+
 # globals
 vardict = {}
+ops = {
+    '+': operator.add,
+    '-': operator.sub,
+    '*': operator.mul,
+    '/': operator.truediv
+}
 
 # whether string is int
-def is_int(string):
-    try: int(string); return True
+def is_int(raw_s):
+    s = raw_s.strip()
+    try: int(s); return True
     except: return False
 
 # whether string is float
-def is_float(string):
-    try: float(string); return True
+def is_float(raw_s):
+    s = raw_s.strip()
+    try: float(s); return True
     except: return False
 
+# whether string is string
+def is_str(raw_s):
+    s = raw_s.strip()
+    open_a = False
+    open_q = False
+    for ch in s:
+        # if apostrophe and not open quote
+        if ch == "'" and not open_q: open_a = not open_a
+        # if quote and not open apostrophe
+        if ch == '"' and not open_a: open_q = not open_q
+        # if no string open, return false
+        if not open_a and not open_q: return False
+    return True
+
 # evaluates given value
-def evaluate(val):
+def evaluate(raw_val):
+    # strip value
+    val = raw_val.strip()
+    # expression
+    if not is_str(val):
+        for op in ops:
+            # get operator index and skip if none
+            op_index = val.find(op)
+            if op_index == -1: continue
+            a = val[:op_index]
+            b = val[(op_index + 1):]
+            return ops[op](evaluate(a), evaluate(b))
+    # singular term
     if is_int(val): return int(val)
     elif is_float(val): return float(val)
     elif val in vardict.keys(): return vardict[val]

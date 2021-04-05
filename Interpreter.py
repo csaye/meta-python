@@ -41,19 +41,31 @@ def evaluate(raw_val):
     # strip value
     val = raw_val.strip()
     # expression
-    if not is_str(val):
-        for op in ops:
-            # get operator index and skip if none
-            op_index = val.find(op)
-            if op_index == -1: continue
-            a = val[:op_index]
-            b = val[(op_index + 1):]
-            return ops[op](evaluate(a), evaluate(b))
-    # singular term
-    if is_int(val): return int(val)
-    elif is_float(val): return float(val)
-    elif val in vardict.keys(): return vardict[val]
-    else: return val[1:(len(val) - 1)]
+    open_a = False; open_q = False
+    is_exp = False
+    i = 0; val_len = len(val)
+    while i < val_len:
+        ch = val[i]
+        # parse open string status
+        if ch == "'" and not open_q: open_a = not open_a
+        if ch == '"' and not open_a: open_q = not open_q
+        # if string not open and operator
+        if not open_a and not open_q and ch in ops:
+            # set expression to true and pad operator
+            is_exp = True
+            val = val[:i] + ' ' + ch + ' ' + val[(i + 1):]
+            i += 2
+            val_len += 2
+        i += 1
+    # if expression
+    if is_exp:
+        # evaluate expression
+    else:
+        # evaluate singular term
+        if is_int(val): return int(val)
+        elif is_float(val): return float(val)
+        elif val in vardict.keys(): return vardict[val]
+        else: return val[1:(len(val) - 1)]
 
 # processes given line
 def process_line(line):
@@ -82,5 +94,8 @@ fin.close()
 index = 0
 while index < len(lines):
     line = lines[index].rstrip()
+    # cut comment
+    com_index = line.find('#')
+    if com_index != -1: line = line[:com_index]
     process_line(line)
     index += 1

@@ -11,29 +11,30 @@ def is_float(string):
     try: float(string); return True
     except: return False
 
+# evaluates given value
+def evaluate(val):
+    if is_int(val): return int(val)
+    elif is_float(val): return float(val)
+    elif val in vardict.keys(): return vardict[val]
+    else: return val[1:(len(val) - 1)]
+
 # processes given line
 def process_line(line):
     # print
     if line.startswith('print'):
-        # get stripped content inside parentheses
-        content = line[5:].strip()
-        content = content[1:(len(content) - 1)].strip()
-        # print content without quotations
-        print(content[1:(len(content) - 1)])
+        # get stripped value inside parentheses
+        val = line[5:].strip()
+        val = val[1:(len(val) - 1)].strip()
+        # print evaluated value
+        print(evaluate(val))
     # variable
     if '=' in line:
         equal_index = line.find('=')
         # get variable and value
         var = line[:equal_index].strip()
         val = line[(equal_index + 1):].strip()
-        # get result
-        if is_int(val): res = int(val)
-        elif is_float(val): res = float(val)
-        elif val in vardict.keys(): res = vardict[val]
-        else: res = val[1:(len(val) - 1)]
-        # set result
-        vardict[var] = res
-        print(vardict)
+        # set result to evaluated value
+        vardict[var] = evaluate(val)
 
 # read input
 fin = open('./Input.py', 'r')

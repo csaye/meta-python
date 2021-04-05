@@ -7,23 +7,30 @@ ops = {
     '+': operator.add,
     '-': operator.sub,
     '*': operator.mul,
-    '/': operator.truediv
+    '/': operator.truediv,
+    '%': operator.mod
 }
 
+ops0 = ['+', '-']
+ops1 = ['*', '/', '%']
+ops2 = []
+
 # whether string is int
-def is_int(s):
+def is_int(raw_s):
+    s = str(raw_s).strip()
     try: int(s); return True
     except: return False
 
 # whether string is float
-def is_float(s):
+def is_float(raw_s):
+    s = str(raw_s).strip()
     try: float(s); return True
     except: return False
 
 # whether string is string
-def is_str(s):
-    open_a = False
-    open_q = False
+def is_str(raw_s):
+    s = str(raw_s).strip()
+    open_a = False; open_q = False
     for i in range(len(s)):
         ch = s[i]
         # if apostrophe and not open quote
@@ -59,6 +66,9 @@ def eval_exp(exp):
             elem = elems[i]
             # if operator
             if elem in ops:
+                # enforce order of operations
+                if elem in ops0 and any(e in ops1 for e in elems): continue
+                if elem in ops1 and any(e in ops2 for e in elems): continue
                 # evaluate operation and break
                 a = eval_val(elems[i - 1])
                 b = eval_val(elems[i + 1])

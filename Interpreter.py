@@ -11,32 +11,64 @@ ops = {
 }
 
 # whether string is int
-def is_int(raw_s):
-    s = raw_s.strip()
+def is_int(s):
     try: int(s); return True
     except: return False
 
 # whether string is float
-def is_float(raw_s):
-    s = raw_s.strip()
+def is_float(s):
     try: float(s); return True
     except: return False
 
 # whether string is string
-def is_str(raw_s):
-    s = raw_s.strip()
+def is_str(s):
     open_a = False
     open_q = False
-    for ch in s:
+    for i in range(len(s)):
+        ch = s[i]
         # if apostrophe and not open quote
         if ch == "'" and not open_q: open_a = not open_a
         # if quote and not open apostrophe
         if ch == '"' and not open_a: open_q = not open_q
-        # if no string open, return false
-        if not open_a and not open_q: return False
+        # if end
+        if i == len(s) - 1:
+            # if string open, return false
+            if open_a or open_q: return False
+        # if not end
+        else:
+            # if string closed, return false
+            if not open_a and not open_q: return False
     return True
 
-# evaluates given value
+# evaluates singular value
+def eval_val(val):
+    if is_int(val): return int(val)
+    elif is_float(val): return float(val)
+    elif val in vardict.keys(): return vardict[val]
+    elif is_str(val): return val[1:(len(val) - 1)]
+    else: return val
+
+# evaluates expression value
+def eval_exp(exp):
+    # split by elements
+    elems = exp.split()
+    # while more than one element
+    while len(elems) > 1:
+        # for each element
+        for i in range(len(elems)):
+            elem = elems[i]
+            # if operator
+            if elem in ops:
+                # evaluate operation and break
+                a = eval_val(elems[i - 1])
+                b = eval_val(elems[i + 1])
+                res = ops[elem](a, b)
+                elems = elems[:(i - 1)] + [res] + elems[(i + 2):]
+                break
+    # return first element
+    return elems[0]
+
+# evaluates value
 def evaluate(raw_val):
     # strip value
     val = raw_val.strip()
@@ -57,15 +89,10 @@ def evaluate(raw_val):
             i += 2
             val_len += 2
         i += 1
-    # if expression
-    if is_exp:
-        # evaluate expression
-    else:
-        # evaluate singular term
-        if is_int(val): return int(val)
-        elif is_float(val): return float(val)
-        elif val in vardict.keys(): return vardict[val]
-        else: return val[1:(len(val) - 1)]
+    # if expression value
+    if is_exp: return eval_exp(val)
+    # if singular value
+    else: return eval_val(val)
 
 # processes given line
 def process_line(line):

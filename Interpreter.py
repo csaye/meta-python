@@ -10,10 +10,34 @@ ops = {
     '/': operator.truediv,
     '%': operator.mod
 }
-
 ops0 = ['+', '-']
 ops1 = ['*', '/', '%']
 ops2 = []
+
+# formats and appends given line to lines
+def format_line(raw_line):
+    global lines
+    line = raw_line.strip()
+    # format line
+    open_q = False; open_a = False
+    line_len = len(line)
+    for i in range(line_len):
+        ch = line[i]
+        # parse quotations
+        if ch == "'" and not open_q: open_a = not open_a
+        if ch == '"' and not open_a: open_q = not open_q
+        # if no open string
+        if not open_a and not open_q:
+            # split by semicolon
+            if ch == ';':
+                lines.append(line[:i])
+                format_line(line[(i + 1):])
+                return
+            # cut comment
+            if ch == '#':
+                lines.append(line[:i])
+                return
+    lines.append(line)
 
 # whether string is int
 def is_int(raw_s):
@@ -155,15 +179,20 @@ def process_line(line):
 
 # read input
 fin = open('./Input.py', 'r')
-lines = fin.read().splitlines()
+raw_lines = fin.read().splitlines()
 fin.close()
 
-# go through lines
-index = 0
-while index < len(lines):
-    line = lines[index].rstrip()
-    # cut comment
-    com_index = line.find('#')
-    if com_index != -1: line = line[:com_index]
+# format lines
+lines = []
+for line in raw_lines:
+    format_line(line)
+
+#print(lines)
+
+# parse lines
+index = 0; length = len(lines)
+while index < length:
+    # process line
+    line = lines[index]
     process_line(line)
     index += 1

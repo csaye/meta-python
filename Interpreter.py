@@ -55,10 +55,41 @@ def eval_val(val):
     elif is_str(val): return val[1:(len(val) - 1)]
     else: return val
 
+# splits a string, keeping quotes and parentheses together
+def smart_split(string):
+    words = []; word = ''
+    open_par = 0
+    open_a = False; open_q = False
+    # for all chars in string
+    for i in range(len(string)):
+        ch = string[i]
+        # parse quotations
+        if ch == "'" and not open_q: open_a = not open_a
+        if ch == '"' and not open_a: open_q = not open_q
+        # if no open string
+        if not open_a and not open_q:
+            # parse parentheses
+            if ch == '(': open_par += 1
+            if ch == ')': open_par -= 1
+            # if whitespace and no open parentheses
+            if ch.isspace() and open_par <= 0:
+                # close word and reset
+                if len(word) > 0: words.append(word)
+                word = ''
+            # if not whitespace or parentheses, append char
+            else: word += ch
+        # if in string, append char
+        else: word += ch
+        # if end of string
+        if i == len(string) - 1:
+            # close word
+            if len(word) > 0: words.append(word)
+    return words
+
 # evaluates expression value
 def eval_exp(exp):
-    # split by elements
-    elems = exp.split()
+    # smart split elements
+    elems = smart_split(exp)
     # while more than one element
     while len(elems) > 1:
         # for each element
@@ -70,13 +101,13 @@ def eval_exp(exp):
                 if elem in ops0 and any(e in ops1 for e in elems): continue
                 if elem in ops1 and any(e in ops2 for e in elems): continue
                 # evaluate operation and break
-                a = eval_val(elems[i - 1])
-                b = eval_val(elems[i + 1])
+                a = eval_exp(str(elems[i - 1]).strip('()'))
+                b = eval_exp(str(elems[i + 1]).strip('()'))
                 res = ops[elem](a, b)
                 elems = elems[:(i - 1)] + [res] + elems[(i + 2):]
                 break
-    # return first element
-    return elems[0]
+    # return first element value
+    return eval_val(elems[0])
 
 # evaluates value
 def evaluate(raw_val):

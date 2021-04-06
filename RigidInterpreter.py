@@ -1,5 +1,27 @@
-# globals
-var_dict = {}
+# imports
+import operator
+
+# variable dictionary
+variables = {}
+
+# operator dictionary
+operators = {
+    '+': (operator.add, 0),
+    '-': (operator.sub, 0),
+    '*': (operator.mul, 1),
+    '/': (operator.truediv, 1),
+    '%': (operator.mod, 1),
+    '//': (operator.floordiv, 1),
+    '**': (operator.pow, 2)
+}
+
+# returns operator operation
+def operation(operator):
+    return operators[operator][0]
+
+# returns operator precedence
+def precendence(operator):
+    return operators[operator][1]
 
 # returns whether string is int
 def is_int(string):
@@ -37,25 +59,45 @@ def smart_split(string):
     return words
 
 # parses given expression
-def parse_expression(terms):
-    return terms
+def parse_expression(expression):
+    terms = smart_split(expression)
+    # while multiple terms
+    while len(terms) > 1:
+        for i in range(len(terms)):
+            term = terms[i]
+            if term in operators:
+                # enforce order of operations
+                if any(
+                    t in operators
+                    and precendence(term) < precendence(t)
+                    for t in terms
+                ): continue
+                # evaluate operation
+                a = parse_expression(str(terms[i - 1]))
+                b = parse_expression(str(terms[i + 1]))
+                result = operation(term)(a, b)
+                # update terms list and break
+                terms = terms[:(i - 1)] + [result] + terms[(i + 2):]
+                break
+    # return first term parsed
+    return parse_term(terms[0])
 
 # parses given term
 def parse_term(term):
-    if is_int(term): return int(term)
-    elif is_float(term): return float(term)
-    elif term in var_dict.keys(): return var_dict[term]
-    else: return term[1:(len(term) - 1)]
+    if is_int(term): return int(term) # int
+    elif is_float(term): return float(term) # float
+    elif term in var_dict.keys(): return var_dict[term] # variable
+    else: return term.strip("'") # string
 
 # parses given value
 def parse_value(value):
-    terms = value.split()
+    terms = smart_split(value)
     # if no terms, return none
     if len(terms) == 0: return None
     # if one term, parse term
-    elif len(terms) == 1: return parse_term(terms[0])
+    elif len(terms) == 1: return parse_term(value)
     # if multiple terms, parse expression
-    else: return parse_expression(terms)
+    else: return parse_expression(value)
 
 # parses given line
 def parse_line(raw_line):

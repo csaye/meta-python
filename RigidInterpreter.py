@@ -15,6 +15,16 @@ operators = {
     '**': (operator.pow, 2)
 }
 
+# comparison operator dictionary
+comparison_ops = {
+    '<': operator.lt,
+    '>': operator.gt,
+    '<=': operator.le,
+    '>=': operator.ge,
+    '==': operator.eq,
+    '!=': operator.ne
+}
+
 # returns operator operation
 def operation(operator):
     return operators[operator][0]
@@ -57,6 +67,19 @@ def smart_split(string):
         if i == len(string) - 1:
             if len(word) > 0: words.append(word)
     return words
+
+# parses given boolean expression
+def parse_boolean(expression):
+    terms = smart_split(expression)
+    # find comparison operator
+    for i in range(len(terms)):
+        term = terms[i]
+        if term in comparison_ops:
+            # parse expressions left and right of operator
+            a = parse_expression(terms[:i])
+            b = parse_expression(terms[(i + 1):])
+            # return comparison
+            return comparison_ops[term](a, b)
 
 # parses given expression
 def parse_expression(raw_terms):

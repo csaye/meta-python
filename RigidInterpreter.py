@@ -11,6 +11,31 @@ def is_float(string):
     try: float(string); return True
     except: return False
 
+# splits given string, keeping quotes and parentheses together
+def smart_split(string):
+    words = []; word = ''
+    open_par = 0; open_quo = False
+    # for each char in string
+    for i in range(len(string)):
+        ch = string[i]
+        # parse quotations
+        if ch == "'": open_quo = not open_quo
+        # if no open quotations
+        if not open_quo:
+            # parse parentheses
+            if ch == '(': open_par += 1
+            elif ch == ')': open_par -= 1
+            # if space and no open parentheses, end word
+            elif ch.isspace() and open_par <= 0:
+                if len(word) > 0: words.append(word)
+                word = ''
+            else: word += ch
+        else: word += ch
+        # if last char, end word
+        if i == len(string) - 1:
+            if len(word) > 0: words.append(word)
+    return words
+
 # parses given expression
 def parse_expression(terms):
     return terms

@@ -43,6 +43,15 @@ def is_float(string):
     try: float(string); return True
     except: return False
 
+# returns number of preceding tabs in line
+def count_tabs(line):
+    spaces = 0
+    for ch in line:
+        if ord(ch) != 32: break
+        spaces += 1
+    tabs = spaces // 4
+    return tabs
+
 # splits given string, keeping quotes and parentheses together
 def smart_split(string):
     words = []; word = ''
@@ -124,6 +133,7 @@ def parse_value(value):
 
 # parses given line
 def parse_line(raw_line):
+    global line_index, lines
     # remove comment
     comment_index = raw_line.find('#')
     if comment_index != -1:
@@ -132,10 +142,23 @@ def parse_line(raw_line):
     line = raw_line.strip()
     terms = smart_split(line)
     # print
-    if line.startswith('print'):
+    if line.startswith('print('):
         raw_value = line[6:(len(line) - 1)]
         value = parse_value(raw_value)
         print(value)
+    # if
+    elif line.startswith('if '):
+        # get boolean value
+        raw_value = line[3:(len(line) - 1)]
+        value = parse_boolean(raw_value)
+        # if if fails
+        if not value:
+            # skip to end of if
+            iftabs = count_tabs(lines[line_index])
+            while (
+                line_index < len(lines) - 1
+                and count_tabs(lines[line_index + 1]) > iftabs
+                ): line_index += 1
     # variable
     elif len(terms) > 2 and terms[1].endswith('='):
         # get variable, operator, and value

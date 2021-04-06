@@ -11,6 +11,7 @@ Makes assumptions about program styling for compiling simplicity.
 ### Functionality:
 - value printing
 - variable assignment and modification
+- simple if statements
 
 ### Limitations:
 - whitespace required around expression elements
@@ -38,6 +39,12 @@ b = a - 1
 c = b * 2
 a += b * c
 print(a) # prints '11'
+```
+```py
+if 1 < 2:
+    print('Hello') # prints 'Hello'
+if 1 > 2:
+    print('World')
 ```
 
 ## Interpreter.py

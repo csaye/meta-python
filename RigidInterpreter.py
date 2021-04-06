@@ -2,7 +2,7 @@
 import operator
 
 # variable dictionary
-variables = {}
+varlist = {}
 
 # operator dictionary
 operators = {
@@ -59,8 +59,8 @@ def smart_split(string):
     return words
 
 # parses given expression
-def parse_expression(expression):
-    terms = smart_split(expression)
+def parse_expression(raw_terms):
+    terms = raw_terms
     # while multiple terms
     while len(terms) > 1:
         for i in range(len(terms)):
@@ -73,8 +73,8 @@ def parse_expression(expression):
                     for t in terms
                 ): continue
                 # evaluate operation
-                a = parse_expression(str(terms[i - 1]))
-                b = parse_expression(str(terms[i + 1]))
+                a = parse_value(str(terms[i - 1]))
+                b = parse_value(str(terms[i + 1]))
                 result = operation(term)(a, b)
                 # update terms list and break
                 terms = terms[:(i - 1)] + [result] + terms[(i + 2):]
@@ -86,7 +86,7 @@ def parse_expression(expression):
 def parse_term(term):
     if is_int(term): return int(term) # int
     elif is_float(term): return float(term) # float
-    elif term in var_dict.keys(): return var_dict[term] # variable
+    elif term in varlist.keys(): return varlist[term] # variable
     else: return term.strip("'") # string
 
 # parses given value
@@ -95,19 +95,36 @@ def parse_value(value):
     # if no terms, return none
     if len(terms) == 0: return None
     # if one term, parse term
-    elif len(terms) == 1: return parse_term(value)
+    elif len(terms) == 1: return parse_term(terms[0])
     # if multiple terms, parse expression
-    else: return parse_expression(value)
+    else: return parse_expression(terms)
 
 # parses given line
 def parse_line(raw_line):
+    # remove comment
+    comment_index = raw_line.find('#')
+    if comment_index != -1:
+        raw_line = raw_line[:comment_index]
     # strip line
     line = raw_line.strip()
+    terms = smart_split(line)
     # print
     if line.startswith('print'):
         raw_value = line[6:(len(line) - 1)]
         value = parse_value(raw_value)
         print(value)
+    # variable
+    elif len(terms) > 2 and terms[1].endswith('='):
+        # get variable, operator, and value
+        var = terms[0]
+        op = terms[1]
+        val = parse_expression(terms[2:])
+        # assign variable
+        if op == '=': varlist[var] = val
+        # modify variable by self
+        else:
+            mod_op = op[:(len(op) - 1)]
+            varlist[var] = operation(mod_op)(varlist[var], val)
 
 # read input
 fin = open('./Input.py', 'r');
@@ -117,6 +134,6 @@ fin.close()
 # parse lines
 line_index = 0;
 while line_index < len(lines):
-    line = lines[line_index];
+    line = lines[line_index]
     parse_line(line)
     line_index += 1

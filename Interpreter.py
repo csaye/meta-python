@@ -206,8 +206,6 @@ lines = []
 for line in raw_lines:
     format_line(line)
 
-#print(lines)
-
 # parse lines
 index = 0; length = len(lines)
 while index < length:

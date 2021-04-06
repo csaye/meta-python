@@ -1,3 +1,3 @@
 a = 'Hello World'
 b = a
-print(b)
+print(b) # prints 'Hello World'

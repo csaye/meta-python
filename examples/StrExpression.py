@@ -1,1 +1,1 @@
-print('He' + 'l' * 2 + 'o World')
+print('He' + 'l' * 2 + 'o World') # prints 'Hello World'

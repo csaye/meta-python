@@ -9,14 +9,24 @@ ops = {
     '*': operator.mul,
     '/': operator.truediv,
     '%': operator.mod,
-    '**': operator.pow,
-    '//': operator.floordiv
+    '//': operator.floordiv,
+    '**': operator.pow
 }
 # operator precedence
-ops0 = ['+', '-']
-ops1 = ['*', '/', '%']
-ops2 = []
-# double operators
+op_precedence = {
+    '+': 0,
+    '-': 0,
+    '*': 1,
+    '/': 1,
+    '%': 1,
+    '//': 1,
+    '**': 2
+}
+# returns op precedence for given value
+def oppre(val):
+    if val not in op_precedence.keys(): return -1
+    return op_precedence[val]
+# double operator chars
 dops = ['*', '/']
 
 # formats and appends given line to lines
@@ -127,8 +137,7 @@ def eval_exp(exp):
             # if operator
             if elem in ops:
                 # enforce order of operations
-                if elem in ops0 and any(e in ops1 for e in elems): continue
-                if elem in ops1 and any(e in ops2 for e in elems): continue
+                if any(oppre(elem) < oppre(e) for e in elems): continue
                 # evaluate operation and break
                 a = eval_exp(str(elems[i - 1]).strip('()'))
                 b = eval_exp(str(elems[i + 1]).strip('()'))

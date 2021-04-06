@@ -8,11 +8,16 @@ ops = {
     '-': operator.sub,
     '*': operator.mul,
     '/': operator.truediv,
-    '%': operator.mod
+    '%': operator.mod,
+    '**': operator.pow,
+    '//': operator.floordiv
 }
+# operator precedence
 ops0 = ['+', '-']
 ops1 = ['*', '/', '%']
 ops2 = []
+# double operators
+dops = ['*', '/']
 
 # formats and appends given line to lines
 def format_line(raw_line):
@@ -148,10 +153,15 @@ def evaluate(raw_val):
         if ch == '"' and not open_a: open_q = not open_q
         # if string not open and operator
         if not open_a and not open_q and ch in ops:
-            # set expression to true and pad operator
             is_exp = True
-            val = val[:i] + ' ' + ch + ' ' + val[(i + 1):]
-            i += 2
+            # special case for multiple char operators
+            if i < val_len - 1 and ch in dops and ch == val[i + 1]:
+                val = val[:i] + ' ' + ch * 2 + ' ' + val[(i + 2):]
+                i += 3
+            # set expression to true and pad operator
+            else:
+                val = val[:i] + ' ' + ch + ' ' + val[(i + 1):]
+                i += 2
             val_len += 2
         i += 1
     # if expression value

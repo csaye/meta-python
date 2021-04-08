@@ -7,6 +7,6 @@ while i <= 100: # prints FizzBuzz up to 100
         string += 'Buzz'
     if string == '':
         print(i)
-    if string != '':
+    else:
         print(string)
     i += 1

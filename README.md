@@ -11,7 +11,7 @@ Makes assumptions about program styling for compiling simplicity.
 ### Functionality:
 - value printing
 - variable assignment and modification
-- simple if statements
+- simple if/while statements
 
 ### Limitations:
 - whitespace required around expression elements
@@ -45,6 +45,26 @@ if 1 < 2:
     print('Hello') # prints 'Hello'
 if 1 > 2:
     print('World')
+```
+```py
+i = 0
+while i < 10:
+    print('Hello World') # prints 'Hello World' 10 times
+    i += 1
+```
+```py
+i = 1
+while i <= 100: # prints FizzBuzz up to 100
+    string = ''
+    if i % 3 == 0:
+        string += 'Fizz'
+    if i % 5 == 0:
+        string += 'Buzz'
+    if string == '':
+        print(i)
+    if string != '':
+        print(string)
+    i += 1
 ```
 
 ## Interpreter.py

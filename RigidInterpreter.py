@@ -133,7 +133,7 @@ def parse_value(value):
 
 # parses given line
 def parse_line(raw_line):
-    global line_index, lines
+    global line_index, lines, loop_line
     # remove comment
     comment_index = raw_line.find('#')
     if comment_index != -1:
@@ -154,11 +154,31 @@ def parse_line(raw_line):
         # if if fails
         if not value:
             # skip to end of if
-            iftabs = count_tabs(lines[line_index])
+            tabs = count_tabs(lines[line_index])
             while (
                 line_index < len(lines) - 1
-                and count_tabs(lines[line_index + 1]) > iftabs
+                and count_tabs(lines[line_index + 1]) > tabs
                 ): line_index += 1
+    # while
+    elif line.startswith('while '):
+        # get boolean value
+        raw_value = line[6:(len(line) - 1)]
+        value = parse_boolean(raw_value)
+        # get last line of while
+        tabs = count_tabs(lines[line_index])
+        end_index = line_index
+        while (
+            end_index < len(lines) - 1
+            and count_tabs(lines[end_index + 1]) > tabs
+            ): end_index += 1
+        # if while true, set loop line
+        if value: loop_line = (end_index, line_index)
+        # if while false
+        else:
+            # clear loop line
+            loop_line = (-1, -1)
+            # skip to end of while
+            line_index = end_index
     # variable
     elif len(terms) > 2 and terms[1].endswith('='):
         # get variable, operator, and value
@@ -171,14 +191,18 @@ def parse_line(raw_line):
         else:
             mod_op = op[:(len(op) - 1)]
             varlist[var] = operation(mod_op)(varlist[var], val)
+    # go back to loop line if not -1
+    if line_index == loop_line[0]:
+        if loop_line[1] != -1: line_index = loop_line[1] - 1
 
 # read input
-fin = open('./Input.py', 'r');
+fin = open('./Input.py', 'r')
 lines = fin.read().splitlines()
 fin.close()
 
 # parse lines
-line_index = 0;
+loop_line = (-1, -1)
+line_index = 0
 while line_index < len(lines):
     line = lines[line_index]
     parse_line(line)

@@ -17,6 +17,7 @@ Makes assumptions about program styling for compiling simplicity.
 ### Limitations:
 - whitespace required around expression elements
 - multiple inline statements not supported
+- compound boolean statements not supported
 
 ### Examples
 
@@ -35,33 +36,10 @@ b = a
 print(b) # prints 'Hello World'
 ```
 ```py
-a = 3
-b = a - 1
-c = b * 2
-a += b * c
-print(a) # prints '11'
-```
-```py
-if 1 < 2:
-    print('Hello') # prints 'Hello'
-if 1 > 2:
-    print('World')
-```
-```py
 i = 0
 while i < 10:
     print('Hello World') # prints 'Hello World' 10 times
     i += 1
-```
-```py
-if 1 < 2:
-    print('True') # prints 'True'
-    if 1 > 2:
-        print('False')
-    else:
-        print('True') # prints 'True'
-else:
-    print('False')
 ```
 ```py
 i = 1
@@ -75,6 +53,20 @@ while i <= 100: # prints FizzBuzz up to 100
         print(i)
     else:
         print(string)
+    i += 1
+```
+```py
+i = 2
+while i < 100: # prints primes up to 100
+    prime = 1
+    upper = i ** 0.5 + 1
+    j = 2
+    while j < upper:
+        if i % j == 0:
+            prime = 0
+        j += 1
+    if prime == 1:
+        print(i)
     i += 1
 ```
 

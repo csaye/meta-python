@@ -13,6 +13,7 @@ Makes assumptions about program styling for compiling simplicity.
 - variable assignment and modification
 - simple if/else statements
 - simple while statements
+- user input
 
 ### Limitations:
 - whitespace required around expression elements

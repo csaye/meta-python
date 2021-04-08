@@ -132,7 +132,8 @@ def parse_expression(raw_terms):
 
 # parses given term
 def parse_term(term):
-    if is_int(term): return int(term) # int
+    if term == 'input': return input() # input
+    elif is_int(term): return int(term) # int
     elif is_float(term): return float(term) # float
     elif term in varlist.keys(): return varlist[term] # variable
     else: return term.strip("'") # string

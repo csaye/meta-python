@@ -52,6 +52,22 @@ def count_tabs(line):
     tabs = spaces // 4
     return tabs
 
+# gets end line of start line expression
+def get_end_line(start_line):
+    # get last line of while
+    tabs = count_tabs(lines[start_line])
+    end_index = start_line
+    while (
+        # end index before last line
+        end_index < len(lines) - 1
+        and (
+        # line empty
+        not lines[end_index + 1]
+        # or line has enough tabs
+        or count_tabs(lines[end_index + 1]) > tabs)
+        ): end_index += 1
+    return end_index
+
 # splits given string, keeping quotes and parentheses together
 def smart_split(string):
     words = []; word = ''
@@ -151,31 +167,22 @@ def parse_line(raw_line):
         # get boolean value
         raw_value = line[3:(len(line) - 1)]
         value = parse_boolean(raw_value)
-        # if if fails
-        if not value:
-            # skip to end of if
-            tabs = count_tabs(lines[line_index])
-            while (
-                line_index < len(lines) - 1
-                and count_tabs(lines[line_index + 1]) > tabs
-                ): line_index += 1
+        # get last line of if
+        end_index = get_end_line(line_index)
+        # if if fails, skip to end of if
+        if not value: line_index = end_index
+        # if if passes and else statement
+        elif lines[end_index + 1].strip().startswith('else:'):
+            # append loop line to skip else
+            end_end_index = get_end_line(end_index + 1)
+            loop_lines.append((end_index, end_end_index + 1))
     # while
     elif line.startswith('while '):
         # get boolean value
         raw_value = line[6:(len(line) - 1)]
         value = parse_boolean(raw_value)
         # get last line of while
-        tabs = count_tabs(lines[line_index])
-        end_index = line_index
-        while (
-            # end index before last line
-            end_index < len(lines) - 1
-            and (
-            # line empty
-            not lines[end_index + 1]
-            # or line has enough tabs
-            or count_tabs(lines[end_index + 1]) > tabs)
-            ): end_index += 1
+        end_index = get_end_line(line_index)
         # if while true, append loop line
         if value: loop_lines.append((end_index, line_index))
         # if while false, skip to end of while

@@ -133,7 +133,7 @@ def parse_value(value):
 
 # parses given line
 def parse_line(raw_line):
-    global line_index, lines, loop_line
+    global line_index, lines, loop_lines
     # remove comment
     comment_index = raw_line.find('#')
     if comment_index != -1:
@@ -168,17 +168,18 @@ def parse_line(raw_line):
         tabs = count_tabs(lines[line_index])
         end_index = line_index
         while (
+            # end index before last line
             end_index < len(lines) - 1
-            and count_tabs(lines[end_index + 1]) > tabs
+            and (
+            # line empty
+            not lines[end_index + 1]
+            # or line has enough tabs
+            or count_tabs(lines[end_index + 1]) > tabs)
             ): end_index += 1
-        # if while true, set loop line
-        if value: loop_line = (end_index, line_index)
-        # if while false
-        else:
-            # clear loop line
-            loop_line = (-1, -1)
-            # skip to end of while
-            line_index = end_index
+        # if while true, append loop line
+        if value: loop_lines.append((end_index, line_index))
+        # if while false, skip to end of while
+        else: line_index = end_index
     # variable
     elif len(terms) > 2 and terms[1].endswith('='):
         # get variable, operator, and value
@@ -191,9 +192,15 @@ def parse_line(raw_line):
         else:
             mod_op = op[:(len(op) - 1)]
             varlist[var] = operation(mod_op)(varlist[var], val)
-    # go back to loop line if not -1
-    if line_index == loop_line[0]:
-        if loop_line[1] != -1: line_index = loop_line[1] - 1
+    # if loop lines
+    if len(loop_lines) > 0:
+        # if line index matches top loop line
+        last_index = len(loop_lines) - 1
+        if line_index == loop_lines[last_index][0]:
+            # go to line index of loop line
+            line_index = loop_lines[last_index][1] - 1
+            # pop loop line
+            loop_lines.pop()
 
 # read input
 fin = open('./Input.py', 'r')
@@ -201,7 +208,7 @@ lines = fin.read().splitlines()
 fin.close()
 
 # parse lines
-loop_line = (-1, -1)
+loop_lines = []
 line_index = 0
 while line_index < len(lines):
     line = lines[line_index]

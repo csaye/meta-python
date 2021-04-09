@@ -87,6 +87,13 @@ def smart_split(string):
                 if len(word) > 0: words.append(word)
                 word = ''
             else: word += ch
+            # add parentheses if nothing inside
+            if (i != len(string) - 1
+            and ch == '(' and string[i + 1] == ')'):
+                word += ch
+            if (i != 0
+            and ch == ')' and string[i - 1] == '('):
+                word += ch
         else: word += ch
         # if last char, end word
         if i == len(string) - 1:
@@ -107,8 +114,7 @@ def parse_boolean(expression):
             return comparison_ops[term](a, b)
 
 # parses given expression
-def parse_expression(raw_terms):
-    terms = raw_terms
+def parse_expression(terms):
     # while multiple terms
     while len(terms) > 1:
         for i in range(len(terms)):
@@ -132,7 +138,7 @@ def parse_expression(raw_terms):
 
 # parses given term
 def parse_term(term):
-    if term == 'input': return input() # input
+    if term == 'input()': return input() # input
     elif is_int(term): return int(term) # int
     elif is_float(term): return float(term) # float
     elif term in varlist.keys(): return varlist[term] # variable
@@ -149,14 +155,14 @@ def parse_value(value):
     else: return parse_expression(terms)
 
 # parses given line
-def parse_line(raw_line):
+def parse_line(line):
     global line_index, lines, loop_lines
     # remove comment
     comment_index = raw_line.find('#')
     if comment_index != -1:
-        raw_line = raw_line[:comment_index]
+        line = line[:comment_index]
     # strip line
-    line = raw_line.strip()
+    line = line.strip()
     terms = smart_split(line)
     # print
     if line.startswith('print('):
@@ -188,6 +194,24 @@ def parse_line(raw_line):
         if value: loop_lines.append((end_index, line_index))
         # if while false, skip to end of while
         else: line_index = end_index
+    # define method
+    elif line.startswith('def '):
+        # skip to end of method
+        line_index = get_end_line(line_index)
+    # call method
+    elif len(terms) == 1 and line.endswith('()'):
+        # get method name
+        method = line[:(len(line) - 2)]
+        # for each line
+        for i in range(len(lines)):
+            # if method def
+            if lines[i].startswith('def ' + method):
+                # create loop line
+                end_index = get_end_line(i)
+                loop_lines.append((end_index, line_index + 1))
+                # set line index and break
+                line_index = i
+                break
     # variable
     elif len(terms) > 2 and terms[1].endswith('='):
         # get variable, operator, and value

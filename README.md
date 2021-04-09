@@ -14,6 +14,7 @@ Makes assumptions about program styling for compiling simplicity.
 - simple if/else statements
 - simple while statements
 - user input
+- simple methods
 
 ### Limitations:
 - whitespace required around expression elements
